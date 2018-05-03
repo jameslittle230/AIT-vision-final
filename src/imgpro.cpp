@@ -1,23 +1,3 @@
-
-// Computer Vision for Digital Post-Production
-// Lecturer: Gergely Vass - vassg@vassg.hu
-//
-// Skeleton Code for programming assigments
-// 
-// Code originally from Thomas Funkhouser
-// main.c
-// original by Wagner Correa, 1999
-// modified by Robert Osada, 2000
-// modified by Renato Werneck, 2003
-// modified by Jason Lawrence, 2004
-// modified by Jason Lawrence, 2005
-// modified by Forrester Cole, 2006
-// modified by Tom Funkhouser, 2007
-// modified by Chris DeCoro, 2007
-//
-
-
-
 // Include files
 
 #include <stdio.h>
