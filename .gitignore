@@ -1,0 +1,9 @@
+input/*
+output/*
+videoinput/*
+videooutput/*
+.DS_Store
+*.o
+*.a
+src/R2Image.o
+src/imgpro
