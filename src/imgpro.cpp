@@ -143,8 +143,8 @@ main(int argc, char **argv)
 	else if (!strcmp(argv[i], "-video")) {
 		printf("Video processing started\n");
 
-		char inputName[100] = "../../videoinput/input%07d.jpg";
-		char outputName[100] = "../../videooutput/output%07d.jpg";
+		char inputName[100] = "videoinput/out_%04d.jpg";
+		char outputName[100] = "videooutput/out_%04d.jpg";
 
 		R2Image *mainImage = new R2Image();
 		char currentFilename[100];
@@ -154,7 +154,7 @@ main(int argc, char **argv)
 			exit(-1);
 		}
 		// read very first frame
-		sprintf(currentFilename, inputName, 0);
+		sprintf(currentFilename, inputName, 1);
 		if (!mainImage->Read(currentFilename)) {
 			fprintf(stderr, "Unable to read first image\n");
 			exit(-1);
@@ -162,11 +162,11 @@ main(int argc, char **argv)
 
 		// =============== VIDEO PROCESSING ===============
 
-		mainImage->Blur(3.0f);
-		// here you could call mainImage->FirstFrameProcessing( ); 
+		// mainImage->Blur(3.0f);
+		// here you could call mainImage->FirstFrameProcessing( );
 		
-		int end = 88;
-		for (int i = 1; i < end; i++)
+		int end = 384;
+		for (int i = 2; i <= end; i++)
 		{
 			R2Image *currentImage = new R2Image();
 			if (!currentImage) {
@@ -183,8 +183,8 @@ main(int argc, char **argv)
 				exit(-1);
 			}
 
-			currentImage->Brighten((float)i/(float)end);
-			// here you could call 
+			// currentImage->Brighten((float)i/(float)end);
+			// here you could call
 			// 
 			// mainImage->FrameProcessing( currentImage ); 
 			//
