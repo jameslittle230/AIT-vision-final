@@ -2,7 +2,7 @@
 #ifndef R2_IMAGE_INCLUDED
 #define R2_IMAGE_INCLUDED
 
-
+#include <vector>
 
 // Constant definitions
 
@@ -30,8 +30,60 @@ typedef enum {
 } R2ImageCompositeOperation;
 
 
+// Struct Definitions
 
-// Class definition
+struct Feature
+{
+  int centerX;
+  int centerY;
+  int x2, y2;
+  R2Pixel HarrisValue;
+
+  Feature()
+  {
+    centerX = -1;
+    centerY = -1;
+    x2 = -1;
+    y2 = -1;
+  }
+
+  Feature(int x, int y, R2Pixel val)
+  {
+    centerX = x;
+    centerY = y;
+    x2 = -1;
+    y2 = -1;
+    HarrisValue = val;
+  }
+
+  bool operator<(const Feature &feature) const
+  {
+    double valueIntensity = HarrisValue[0] + HarrisValue[1] + HarrisValue[2];
+    double featureIntensity = feature.HarrisValue[0] + feature.HarrisValue[1] + feature.HarrisValue[2];
+    return valueIntensity < featureIntensity;
+  }
+
+  bool closeTo(Feature newFeat) {
+    int xdist = abs(centerX - newFeat.centerX);
+    int ydist = abs(centerY - newFeat.centerY);
+    return (xdist < 20 && ydist < 20);
+  }
+
+  void setSecondPoint(int x, int y) {
+    x2 = x;
+    y2 = y;
+  }
+};
+
+struct Point {
+    double x, y;
+};
+
+struct PointCorrespondence {
+    Point before, after;
+};
+
+// Class Definition
 
 class R2Image {
  public:
@@ -58,25 +110,16 @@ class R2Image {
 
   // Image processing
   R2Image& operator=(const R2Image& image);
+  void Square();
 
-  // Per-pixel operations
-  void Brighten(double factor);
-  void ChangeSaturation(double factor);
-
-  // show how SVD works
-  void svdTest();
-
-  // Linear filtering operations
+  // Assignment Functions
+  void FirstFrameProcessing();
+  void FrameProcessing(R2Image * currentImage);
   void SobelX();
   void SobelY();
-  void LoG();
   void Blur(double sigma);
-  void Harris(double sigma);
-  void Sharpen(void);
-
-  // further operations
-  void blendOtherImageTranslated(R2Image * otherImage);
-  void blendOtherImageHomography(R2Image * otherImage);
+  std::vector<Feature> Harris(double sigma);
+  void blendImages(R2Image * otherImage);
 
   // File reading/writing
   int Read(const char *filename);
