@@ -94,76 +94,69 @@ CheckOption(char *option, int argc, int minargc)
 
 
 
-int 
+int
 main(int argc, char **argv)
 {
   // Look for help
   for (int i = 0; i < argc; i++) {
-    if (!strcmp(argv[i], "-help")) {
+    if (!strcmp(argv[i], "-video")) {
+      printf("Video processing started\n");
+
+      char inputName[100] = "videoinput/out_%04d.jpg";
+      char outputName[100] = "videooutput/out_%04d.jpg";
+
+      R2Image *mainImage = new R2Image();
+      char currentFilename[100];
+      char currentOutputFilename[100];
+      if (!mainImage) {
+        fprintf(stderr, "Unable to allocate image\n");
+        exit(-1);
+      }
+      // read very first frame
+      sprintf(currentFilename, inputName, 1);
+      if (!mainImage->Read(currentFilename)) {
+        fprintf(stderr, "Unable to read first image\n");
+        exit(-1);
+      }
+
+      // =============== VIDEO PROCESSING ===============
+
+      // mainImage->Blur(3.0f);
+      // here you could call mainImage->FirstFrameProcessing( );
+
+      int end = 384;
+      for (int i = 2; i <= end; i++)
+      {
+        R2Image *currentImage = new R2Image();
+        if (!currentImage) {
+          fprintf(stderr, "Unable to allocate image %d\n",i);
+          exit(-1);
+        }
+
+        sprintf(currentFilename, inputName, i);
+        sprintf(currentOutputFilename, outputName, i);
+
+        printf("Processing file %s\n", currentFilename);
+        if (!currentImage->Read(currentFilename)) {
+          fprintf(stderr, "Unable to read image %d\n", i);
+          exit(-1);
+        }
+
+        mainImage->FrameProcessing(currentImage);
+        //
+        // where FrameProcessing would process the current input currentImage, as well as writing the output to currentImage
+
+        // write result to file
+        if (!currentImage->Write(currentOutputFilename)) {
+          fprintf(stderr, "Unable to write %s\n", currentOutputFilename);
+          exit(-1);
+        }
+        delete currentImage;
+      }
+      delete mainImage;
+      // Return success
+      return EXIT_SUCCESS;
     }
-	if (!strcmp(argv[i], "-svdTest")) {
-	  return 0;
-    }
-	else if (!strcmp(argv[i], "-video")) {
-		printf("Video processing started\n");
-
-		char inputName[100] = "videoinput/out_%04d.jpg";
-		char outputName[100] = "videooutput/out_%04d.jpg";
-
-		R2Image *mainImage = new R2Image();
-		char currentFilename[100];
-		char currentOutputFilename[100];
-		if (!mainImage) {
-			fprintf(stderr, "Unable to allocate image\n");
-			exit(-1);
-		}
-		// read very first frame
-		sprintf(currentFilename, inputName, 1);
-		if (!mainImage->Read(currentFilename)) {
-			fprintf(stderr, "Unable to read first image\n");
-			exit(-1);
-		}
-
-		// =============== VIDEO PROCESSING ===============
-
-		// mainImage->Blur(3.0f);
-		// here you could call mainImage->FirstFrameProcessing( );
-
-		int end = 384;
-		for (int i = 2; i <= end; i++)
-		{
-			R2Image *currentImage = new R2Image();
-			if (!currentImage) {
-				fprintf(stderr, "Unable to allocate image %d\n",i);
-				exit(-1);
-			}
-
-			sprintf(currentFilename, inputName, i);
-			sprintf(currentOutputFilename, outputName, i);
-			
-			printf("Processing file %s\n", currentFilename);
-			if (!currentImage->Read(currentFilename)) {
-				fprintf(stderr, "Unable to read image %d\n", i);
-				exit(-1);
-			}
-
-			// here you could call
-			// 
-			mainImage->FrameProcessing( currentImage );
-			//
-			// where FrameProcessing would process the current input currentImage, as well as writing the output to currentImage
-
-			// write result to file
-			if (!currentImage->Write(currentOutputFilename)) {
-				fprintf(stderr, "Unable to write %s\n", currentOutputFilename);
-				exit(-1);
-			}
-			delete currentImage;
-		}
-		delete mainImage;
-		// Return success
-		return EXIT_SUCCESS;
-	}
   }
 
   // Read input and output image filenames
