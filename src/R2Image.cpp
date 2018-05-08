@@ -469,7 +469,7 @@ void computeHomographyMatrix(std::vector<PointCorrespondence> correspondences, d
 void R2Image::
 blendImages(R2Image * otherImage,std::vector<Feature> features)
 {
-  R2Image *output = new R2Image(*otherImage);
+  R2Image *output = new R2Image(*this);
 //	std::vector<Feature> features = this->Harris(3); // passed by value
   std::vector<Feature>::iterator it;
 
