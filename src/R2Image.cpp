@@ -6,10 +6,12 @@
 
 #include <vector>
 #include <cmath>
+#include <iostream>
 #include "R2/R2.h"
 #include "R2Pixel.h"
 #include "R2Image.h"
 #include "svd.h"
+
 
 
 
@@ -135,14 +137,20 @@ PointCorrespondence createCorrespondence(Feature ft) {
    ================================================
 */
 
-void R2Image::
+std::vector<Feature> R2Image::
 FirstFrameProcessing() {
   // @TODO
+
+  return this->Harris(2.0);
+
 }
 
 void R2Image::
-FrameProcessing(R2Image * currentImage) {
+FrameProcessing(R2Image * mainImage,std::vector<Feature> features) {
+
   // @TODO
+  this->blendImages(mainImage,features);
+  //this->blendImages(this,features);
 }
 
 void R2Image::
@@ -326,9 +334,9 @@ Harris(double sigma)
     }
   }
 
-  t1->Blur(2);
-  t2->Blur(2);
-  t3->Blur(2);
+  t1->Blur(sigma);
+  t2->Blur(sigma);
+  t3->Blur(sigma);
 
   for(int x=0; x<Width(); x++) {
     for(int y=0; y<Height(); y++) {
@@ -374,6 +382,10 @@ Harris(double sigma)
       }
     }
 
+    if(ft.centerX < 12 || ft.centerX > (this->Width() - 12) || ft.centerY < 12 || ft.centerY > (this->Height() - 12)) {
+      skip = true;
+    }
+
     if(!skip) {
       featuresOut.push_back(features.at(index));
       ct++;
@@ -384,6 +396,7 @@ Harris(double sigma)
 
   featuresOut.resize(std::min(int(featuresOut.size()), featuresCount));
 
+  std::cout << "Harris is done" << std::endl;
   return featuresOut;
 }
 
@@ -454,10 +467,10 @@ void computeHomographyMatrix(std::vector<PointCorrespondence> correspondences, d
 }
 
 void R2Image::
-blendImages(R2Image * otherImage)
+blendImages(R2Image * otherImage,std::vector<Feature> features)
 {
   R2Image *output = new R2Image(*otherImage);
-	std::vector<Feature> features = this->Harris(3); // passed by value
+//	std::vector<Feature> features = this->Harris(3); // passed by value
   std::vector<Feature>::iterator it;
 
   int searchSpaceXDim = this->Width() / 10; // half the search space dimension
@@ -488,10 +501,10 @@ blendImages(R2Image * otherImage)
         double ssd = 0;
 
         // Calculate the SSD with the feature assuming (i, j) is the center of the new feature
-        for(m=-1*windowDimension; m<=windowDimension; m++) {
-          for(n=-1*windowDimension; n<=windowDimension; n++) {
-            double oldLuminance = this->Pixel(ft.centerX + m, ft.centerY + n).Luminance();
-            double newLuminance = otherImage->Pixel(i + m, j + n).Luminance();
+        for(m=-1*windowDimension; m<windowDimension; m++) {
+          for(n=-1*windowDimension; n<windowDimension; n++) {
+            double oldLuminance = otherImage->Pixel(ft.centerX + m, ft.centerY + n).Luminance();
+            double newLuminance = this->Pixel(i + m, j + n).Luminance();
             double diff = oldLuminance - newLuminance;
             ssd += diff * diff;
           }
@@ -508,9 +521,11 @@ blendImages(R2Image * otherImage)
 
     ft.x2 = min_ssd_x;
     ft.y2 = min_ssd_y;
+
+    // std::cout << "Found match from feature at " << ft.centerX << ", " << ft.centerY << " at point " << ft.x2 << ", " << ft.y2 << std::endl;
     *it = ft;
   }
-
+  std::cout<<"End of for loop"<<std::endl;
   int numberOfTrials = 3000;
   int maxInliers = 0;
   std::vector<int> inlierIndices;
@@ -567,8 +582,13 @@ blendImages(R2Image * otherImage)
     }
   }
 
+ //std::cout << inlierIndices.size() << " Do we get here?" << std::endl;
+
+ // output->drawLineWithBox(10, 10, 20, 20, 0, 255, 0);
+
   for(int i=0; i<inlierIndices.size(); i++) {
     Feature f = features.at(inlierIndices.at(i));
+    std::cout << f.centerX << "\t" << f.centerY << "\t" << f.x2 << "\t" << f.y2 << std::endl;
     output->drawLineWithBox(f.centerX, f.centerY, f.x2, f.y2, 255, 0, 0);
   }
 
@@ -636,9 +656,18 @@ blendImages(R2Image * otherImage)
 
   */
 
+  output->Pixel(100, 100).Reset(0, 1, 0, 1);
+  output->Pixel(100, 101).Reset(0, 1, 0, 1);
+  output->Pixel(100, 102).Reset(0, 1, 0, 1);
+  output->Pixel(101, 100).Reset(0, 1, 0, 1);
+  output->Pixel(101, 101).Reset(0, 1, 0, 1);
+  output->Pixel(101, 102).Reset(0, 1, 0, 1);
+  output->Pixel(102, 100).Reset(0, 1, 0, 1);
+  output->Pixel(102, 101).Reset(0, 1, 0, 1);
+  output->Pixel(102, 102).Reset(0, 1, 0, 1);
   this->pixels = output->pixels;
-  output->pixels = nullptr;
-  delete output;
+  // output->pixels = nullptr;
+  // delete output;
 }
 
 ////////////////////////////////////////////////////////////////////////

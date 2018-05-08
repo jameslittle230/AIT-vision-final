@@ -113,13 +113,13 @@ class R2Image {
   void Square();
 
   // Assignment Functions
-  void FirstFrameProcessing();
-  void FrameProcessing(R2Image * currentImage);
+  std::vector<Feature> FirstFrameProcessing();
+  void FrameProcessing(R2Image * currentImage,std::vector<Feature>);
   void SobelX();
   void SobelY();
   void Blur(double sigma);
   std::vector<Feature> Harris(double sigma);
-  void blendImages(R2Image * otherImage);
+  void blendImages(R2Image * otherImage,std::vector<Feature>);
 
   // File reading/writing
   int Read(const char *filename);
@@ -178,6 +178,21 @@ Height(void) const
 inline R2Pixel& R2Image::
 Pixel(int x, int y)
 {
+  if(x < 0) {
+    std::cout << "x went too low! " << x << std::endl;
+  }
+
+  if(x > Width() - 1) {
+    std::cout << "x went too high! " << x << std::endl;
+  }
+
+  if(y < 0) {
+    std::cout << "y went too low! " << y << std::endl;
+  }
+
+  if(y > Height() - 1) {
+    std::cout << "y went too high! " << y << std::endl;
+  }
   // Return pixel value at (x,y)
   // (pixels start at lower-left and go in row-major order)
   return pixels[x*height + y];

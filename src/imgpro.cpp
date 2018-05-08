@@ -102,10 +102,11 @@ main(int argc, char **argv)
     if (!strcmp(argv[i], "-video")) {
       printf("Video processing started\n");
 
-      char inputName[100] = "videoinput/out_%04d.jpg";
-      char outputName[100] = "videooutput/out_%04d.jpg";
+      char inputName[100] = "videoinput/out%07d.jpg";
+      char outputName[100] = "videooutput/out%07d.jpg";
 
       R2Image *mainImage = new R2Image();
+
       char currentFilename[100];
       char currentOutputFilename[100];
       if (!mainImage) {
@@ -124,10 +125,15 @@ main(int argc, char **argv)
       // mainImage->Blur(3.0f);
       // here you could call mainImage->FirstFrameProcessing( );
 
+      //Call Harris
+      std::vector<Feature> features=mainImage->FirstFrameProcessing();
+      
       int end = 384;
       for (int i = 2; i <= end; i++)
       {
+
         R2Image *currentImage = new R2Image();
+
         if (!currentImage) {
           fprintf(stderr, "Unable to allocate image %d\n",i);
           exit(-1);
@@ -142,7 +148,8 @@ main(int argc, char **argv)
           exit(-1);
         }
 
-        mainImage->FrameProcessing(currentImage);
+        currentImage->FrameProcessing(mainImage,features);
+
         //
         // where FrameProcessing would process the current input currentImage, as well as writing the output to currentImage
 
