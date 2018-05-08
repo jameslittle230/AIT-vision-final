@@ -567,6 +567,13 @@ blendImages(R2Image * otherImage)
     }
   }
 
+  for(int i=0; i<inlierIndices.size(); i++) {
+    Feature f = features.at(inlierIndices.at(i));
+    output->drawLineWithBox(f.centerX, f.centerY, f.x2, f.y2, 255, 0, 0);
+  }
+
+  /*
+
   std::vector<PointCorrespondence> bestCorr;
   for(int i=0; i<inlierIndices.size(); i++) {
     bestCorr.push_back(createCorrespondence(features.at(inlierIndices.at(i))));
@@ -626,6 +633,8 @@ blendImages(R2Image * otherImage)
       output->Pixel(i, j).SetBlue(output->Pixel(i, j).Blue() * 0.5 + b * 0.5);
     }
   }
+
+  */
 
   this->pixels = output->pixels;
   output->pixels = nullptr;
