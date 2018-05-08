@@ -133,6 +133,7 @@ class R2Image {
 
  private:
   // Utility functions
+  void drawLineWithBox(int x1, int y1, int x2, int y2, int r, int g, int b);
   void Resize(int width, int height);
   R2Pixel Sample(double u, double v,  int sampling_method);
 

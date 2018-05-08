@@ -280,6 +280,36 @@ Square()
   }
 }
 
+/**
+ * Draws a line from (x1, y1) to (x2, y2) with the RGB color specified by
+ * R, G, and B (which are integers from 0 to 255) and draws a box around the
+ * point (x2, y2)
+ */
+void R2Image::
+drawLineWithBox(int x1, int y1, int x2, int y2, int r, int g, int b) {
+  float rf = float(r)/255.0;
+  float gf = float(g)/255.0;
+  float bf = float(b)/255.0;
+
+  int m, n, x;
+
+  for(m=-4; m<=4; m++) {
+      for(n=-4; n<=4; n++) {
+        this->Pixel(x2+m, y2+n).Reset(rf, gf, bf, 1);
+      }
+    }
+
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+
+    if(dx != 0) { // avoid div by zero errors
+      for(x=std::min(x1, x2); x<=std::max(x1, x2); x++) {
+        int y = int(std::round(y1 + (double(dy * (x-x1)) / double(dx))));
+        this->Pixel(x, y).Reset(rf, gf, bf, 1);
+      }
+    }
+}
+
 std::vector<Feature> R2Image::
 Harris(double sigma)
 {
