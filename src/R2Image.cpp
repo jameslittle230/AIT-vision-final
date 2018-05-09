@@ -656,15 +656,6 @@ blendImages(R2Image * otherImage,std::vector<Feature> features)
 
   */
 
-  output->Pixel(100, 100).Reset(0, 1, 0, 1);
-  output->Pixel(100, 101).Reset(0, 1, 0, 1);
-  output->Pixel(100, 102).Reset(0, 1, 0, 1);
-  output->Pixel(101, 100).Reset(0, 1, 0, 1);
-  output->Pixel(101, 101).Reset(0, 1, 0, 1);
-  output->Pixel(101, 102).Reset(0, 1, 0, 1);
-  output->Pixel(102, 100).Reset(0, 1, 0, 1);
-  output->Pixel(102, 101).Reset(0, 1, 0, 1);
-  output->Pixel(102, 102).Reset(0, 1, 0, 1);
   this->pixels = output->pixels;
   // output->pixels = nullptr;
   // delete output;

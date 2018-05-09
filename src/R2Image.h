@@ -178,21 +178,6 @@ Height(void) const
 inline R2Pixel& R2Image::
 Pixel(int x, int y)
 {
-  if(x < 0) {
-    std::cout << "x went too low! " << x << std::endl;
-  }
-
-  if(x > Width() - 1) {
-    std::cout << "x went too high! " << x << std::endl;
-  }
-
-  if(y < 0) {
-    std::cout << "y went too low! " << y << std::endl;
-  }
-
-  if(y > Height() - 1) {
-    std::cout << "y went too high! " << y << std::endl;
-  }
   // Return pixel value at (x,y)
   // (pixels start at lower-left and go in row-major order)
   return pixels[x*height + y];
