@@ -1,7 +1,12 @@
 // Source file for image class
 
+/*
+//TODO:
+Write matrix multiplier for call in blendImage 
 
+Warp image
 
+*/
 // Include files 
 
 #include <vector>
@@ -145,11 +150,13 @@ FirstFrameProcessing() {
 
 }
 
-void R2Image::
-FrameProcessing(R2Image * mainImage,std::vector<Feature> features) {
+double* R2Image::
+FrameProcessing(R2Image * currentImage,double* currentTransformationMatrix) {
 
   // @TODO
-  this->blendImages(mainImage,features);
+  double* result=this->blendImages(currentImage,currentTransformationMatrix);
+  return result;
+
   //this->blendImages(this,features);
 }
 
@@ -466,11 +473,11 @@ void computeHomographyMatrix(std::vector<PointCorrespondence> correspondences, d
     for(int i=1;i<=9;i++) k[i-1]=v[i][mi];
 }
 
-void R2Image::
-blendImages(R2Image * otherImage,std::vector<Feature> features)
+double* R2Image::
+blendImages(R2Image * otherImage,double* oldTransformation)
 {
   R2Image *output = new R2Image(*this);
-//	std::vector<Feature> features = this->Harris(3); // passed by value
+	std::vector<Feature> features = otherImage->Harris(3); // passed by value
   std::vector<Feature>::iterator it;
 
   int searchSpaceXDim = this->Width() / 10; // half the search space dimension
@@ -525,6 +532,7 @@ blendImages(R2Image * otherImage,std::vector<Feature> features)
     // std::cout << "Found match from feature at " << ft.centerX << ", " << ft.centerY << " at point " << ft.x2 << ", " << ft.y2 << std::endl;
     *it = ft;
   }
+  //RANSAC Homography
   std::cout<<"End of for loop"<<std::endl;
   int numberOfTrials = 3000;
   int maxInliers = 0;
@@ -592,7 +600,7 @@ blendImages(R2Image * otherImage,std::vector<Feature> features)
     output->drawLineWithBox(f.centerX, f.centerY, f.x2, f.y2, 255, 0, 0);
   }
 
-  /*
+
 
   std::vector<PointCorrespondence> bestCorr;
   for(int i=0; i<inlierIndices.size(); i++) {
@@ -604,6 +612,9 @@ blendImages(R2Image * otherImage,std::vector<Feature> features)
   computeHomographyMatrix(bestCorr, k);
   computeInverseMatrix(k, invk);
 
+  //Multiply incoming matrix with recalculated k
+  double *result=matrixMultiplier(k*oldTransformation);
+  /*
   for(int i=0; i<Width(); i++) {
     for(int j=0; j<Height(); j++) {
       // matrix multiplication
@@ -656,9 +667,25 @@ blendImages(R2Image * otherImage,std::vector<Feature> features)
 
   */
 
+  // output->Pixel(100, 100).Reset(0, 1, 0, 1);
+  // output->Pixel(100, 101).Reset(0, 1, 0, 1);
+  // output->Pixel(100, 102).Reset(0, 1, 0, 1);
+  // output->Pixel(101, 100).Reset(0, 1, 0, 1);
+  // output->Pixel(101, 101).Reset(0, 1, 0, 1);
+  // output->Pixel(101, 102).Reset(0, 1, 0, 1);
+  // output->Pixel(102, 100).Reset(0, 1, 0, 1);
+  // output->Pixel(102, 101).Reset(0, 1, 0, 1);
+  // output->Pixel(102, 102).Reset(0, 1, 0, 1);
   this->pixels = output->pixels;
+  return result;
   // output->pixels = nullptr;
   // delete output;
+}
+
+double* R2Image::
+matrixMultiplier(double* matrixOne,double *matrixTwo)
+{
+  double* result= (double *) malloc(sizeof(double) * 9);
 }
 
 ////////////////////////////////////////////////////////////////////////

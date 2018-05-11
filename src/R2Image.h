@@ -38,7 +38,7 @@ struct Feature
   int centerY;
   int x2, y2;
   R2Pixel HarrisValue;
-
+  bool valid;
   Feature()
   {
     centerX = -1;
@@ -54,6 +54,7 @@ struct Feature
     x2 = -1;
     y2 = -1;
     HarrisValue = val;
+
   }
 
   bool operator<(const Feature &feature) const

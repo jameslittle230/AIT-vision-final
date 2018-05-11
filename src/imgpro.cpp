@@ -126,19 +126,26 @@ main(int argc, char **argv)
       // here you could call mainImage->FirstFrameProcessing( );
 
       //Call Harris
-      std::vector<Feature> features=mainImage->FirstFrameProcessing();
-      
+      //std::vector<Feature> features=mainImage->FirstFrameProcessing();
+      double* transformationMatrix=(double *) malloc(sizeof(double) * 9);
       int end = 384;
       for (int i = 2; i <= end; i++)
       {
 
         R2Image *currentImage = new R2Image();
-
+        R2Image *previousImage = new R2Image();
+        
         if (!currentImage) {
           fprintf(stderr, "Unable to allocate image %d\n",i);
           exit(-1);
         }
 
+        if (!previousImage) {
+          fprintf(stderr, "Unable to allocate image %d\n",i);
+          exit(-1);
+        }
+
+        sprintf(previousFilename, inputName, i-1);
         sprintf(currentFilename, inputName, i);
         sprintf(currentOutputFilename, outputName, i);
 
@@ -148,7 +155,13 @@ main(int argc, char **argv)
           exit(-1);
         }
 
-        currentImage->FrameProcessing(mainImage,features);
+        printf("Processing file %s\n", previousFilename);
+        if (!previousImage->Read(previousFilename)) {
+          fprintf(stderr, "Unable to read image %d\n", i);
+          exit(-1);
+        }
+
+        transformationMatrix=currentImage->FrameProcessing(previousImage,transformationMatrix);
 
         //
         // where FrameProcessing would process the current input currentImage, as well as writing the output to currentImage
