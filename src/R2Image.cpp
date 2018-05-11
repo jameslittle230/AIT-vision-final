@@ -613,7 +613,7 @@ blendImages(R2Image * otherImage,double* oldTransformation)
   computeInverseMatrix(k, invk);
 
   //Multiply incoming matrix with recalculated k
-  double *result=matrixMultiplier(k*oldTransformation);
+  double *result=matrixMultiplier(k,oldTransformation);
   /*
   for(int i=0; i<Width(); i++) {
     for(int j=0; j<Height(); j++) {
@@ -686,6 +686,23 @@ double* R2Image::
 matrixMultiplier(double* matrixOne,double *matrixTwo)
 {
   double* result= (double *) malloc(sizeof(double) * 9);
+  
+  result[0]=matrixOne[0]*matrixTwo[0]+matrixOne[1]*matrixTwo[3]+matrixOne[2]*matrixTwo[6];
+  result[1]=matrixOne[0]*matrixTwo[1]+matrixOne[1]*matrixTwo[4]+matrixOne[2]*matrixTwo[7];
+  result[2]=matrixOne[0]*matrixTwo[2]+matrixOne[1]*matrixTwo[5]+matrixOne[2]*matrixTwo[8];
+  
+  
+  result[3]=matrixOne[3]*matrixTwo[0]+matrixOne[4]*matrixTwo[3]+matrixOne[5]*matrixTwo[6];
+  result[4]=matrixOne[3]*matrixTwo[1]+matrixOne[4]*matrixTwo[4]+matrixOne[5]*matrixTwo[7];
+  result[5]=matrixOne[3]*matrixTwo[2]+matrixOne[4]*matrixTwo[5]+matrixOne[5]*matrixTwo[8];
+  
+  result[6]=matrixOne[6]*matrixTwo[0]+matrixOne[7]*matrixTwo[3]+matrixOne[8]*matrixTwo[6];
+  result[7]=matrixOne[6]*matrixTwo[1]+matrixOne[7]*matrixTwo[4]+matrixOne[8]*matrixTwo[7];
+  result[8]=matrixOne[6]*matrixTwo[2]+matrixOne[7]*matrixTwo[5]+matrixOne[8]*matrixTwo[8];
+
+  return result;
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////

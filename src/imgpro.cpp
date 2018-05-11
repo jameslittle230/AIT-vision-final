@@ -109,6 +109,7 @@ main(int argc, char **argv)
 
       char currentFilename[100];
       char currentOutputFilename[100];
+      char previousFilename[100];
       if (!mainImage) {
         fprintf(stderr, "Unable to allocate image\n");
         exit(-1);
