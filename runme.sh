@@ -19,4 +19,4 @@ popd
 
 # generate the result pictures
 
-src/imgpro -video
+src/imgpro -video input/graffiti.jpg
