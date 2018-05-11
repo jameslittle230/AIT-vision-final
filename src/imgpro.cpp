@@ -108,8 +108,9 @@ main(int argc, char **argv)
       R2Image *mainImage = new R2Image();
 
       char currentFilename[100];
-      char currentOutputFilename[100];
       char previousFilename[100];
+      char currentOutputFilename[100];
+
       if (!mainImage) {
         fprintf(stderr, "Unable to allocate image\n");
         exit(-1);
@@ -164,7 +165,6 @@ main(int argc, char **argv)
 
         transformationMatrix=currentImage->FrameProcessing(previousImage,transformationMatrix);
 
-        //
         // where FrameProcessing would process the current input currentImage, as well as writing the output to currentImage
 
         // write result to file
