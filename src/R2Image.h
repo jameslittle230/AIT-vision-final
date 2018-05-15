@@ -115,13 +115,13 @@ class R2Image {
 
   // Assignment Functions
   std::vector<Feature> FirstFrameProcessing();
-  double* FrameProcessing(R2Image * currentImage, double* currentTransformationMatrix);
+  double* FrameProcessing(R2Image * currentImage, double* currentTransformationMatrix, R2Image* overlay);
   double* matrixMultiplier(double* matrixOne,double *matrixTwo);
   void SobelX();
   void SobelY();
   void Blur(double sigma);
   std::vector<Feature> Harris(double sigma);
-  double* blendImages(R2Image * otherImage,double* oldTransformation);
+  double* blendImages(R2Image * otherImage, double* oldTransformation, R2Image* overlay);
 
   // File reading/writing
   int Read(const char *filename);

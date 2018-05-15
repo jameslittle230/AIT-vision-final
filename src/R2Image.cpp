@@ -151,10 +151,10 @@ FirstFrameProcessing() {
 }
 
 double* R2Image::
-FrameProcessing(R2Image * currentImage,double* currentTransformationMatrix) {
+FrameProcessing(R2Image * currentImage,double* currentTransformationMatrix, R2Image* overlay) {
 
   // @TODO
-  double* result=this->blendImages(currentImage,currentTransformationMatrix);
+  double* result=this->blendImages(currentImage,currentTransformationMatrix, overlay);
   return result;
 
   //this->blendImages(this,features);
@@ -474,7 +474,7 @@ void computeHomographyMatrix(std::vector<PointCorrespondence> correspondences, d
 }
 
 double* R2Image::
-blendImages(R2Image * otherImage,double* oldTransformation)
+blendImages(R2Image * otherImage, double* oldTransformation, R2Image* overlay)
 {
   R2Image *output = new R2Image(*this);
 	std::vector<Feature> features = otherImage->Harris(3); // passed by value
@@ -532,6 +532,7 @@ blendImages(R2Image * otherImage,double* oldTransformation)
     // std::cout << "Found match from feature at " << ft.centerX << ", " << ft.centerY << " at point " << ft.x2 << ", " << ft.y2 << std::endl;
     *it = ft;
   }
+
   //RANSAC Homography
   std::cout<<"End of for loop"<<std::endl;
   int numberOfTrials = 3000;
@@ -594,11 +595,11 @@ blendImages(R2Image * otherImage,double* oldTransformation)
 
  // output->drawLineWithBox(10, 10, 20, 20, 0, 255, 0);
 
-  for(int i=0; i<inlierIndices.size(); i++) {
-    Feature f = features.at(inlierIndices.at(i));
-    std::cout << f.centerX << "\t" << f.centerY << "\t" << f.x2 << "\t" << f.y2 << std::endl;
-    output->drawLineWithBox(f.centerX, f.centerY, f.x2, f.y2, 255, 0, 0);
-  }
+  // for(int i=0; i<inlierIndices.size(); i++) {
+  //   Feature f = features.at(inlierIndices.at(i));
+  //   std::cout << f.centerX << "\t" << f.centerY << "\t" << f.x2 << "\t" << f.y2 << std::endl;
+  //   output->drawLineWithBox(f.centerX, f.centerY, f.x2, f.y2, 255, 0, 0);
+  // }
 
 
 
@@ -607,20 +608,20 @@ blendImages(R2Image * otherImage,double* oldTransformation)
     bestCorr.push_back(createCorrespondence(features.at(inlierIndices.at(i))));
   }
 
-  double *k = (double *) malloc(sizeof(double) * 9);
-  double *invk = (double *) malloc(sizeof(double) * 9);
-  computeHomographyMatrix(bestCorr, k);
-  computeInverseMatrix(k, invk);
 
-  //Multiply incoming matrix with recalculated k
-  double *result=matrixMultiplier(k,oldTransformation);
-  /*
+  double *interframeH = (double *) malloc(sizeof(double) * 9);
+  computeHomographyMatrix(bestCorr, interframeH);
+
+  double *fullH = matrixMultiplier(interframeH, oldTransformation);
+  double *invFullH = (double *) malloc(sizeof(double) * 9);
+  computeInverseMatrix(fullH, invFullH);
+
   for(int i=0; i<Width(); i++) {
     for(int j=0; j<Height(); j++) {
       // matrix multiplication
-      double inv_x = i * invk[0] + j * invk[1] + invk[2];
-      double inv_y = i * invk[3] + j * invk[4] + invk[5];
-      double inv_z = i * invk[6] + j * invk[7] + invk[8];
+      double inv_x = i * invFullH[0] + j * invFullH[1] + invFullH[2];
+      double inv_y = i * invFullH[3] + j * invFullH[4] + invFullH[5];
+      double inv_z = i * invFullH[6] + j * invFullH[7] + invFullH[8];
 
       // normalization
       inv_x /= inv_z;
@@ -634,52 +635,36 @@ blendImages(R2Image * otherImage,double* oldTransformation)
       }
 
       double r =
-        (Pixel(floor(inv_x), floor(inv_y)).Red() * floating_x +
-        Pixel(ceil(inv_x),  floor(inv_y)).Red() * (1.0 - floating_x)) * floating_y +
-        (Pixel(floor(inv_x), ceil(inv_y)).Red() * floating_x +
-        Pixel(ceil(inv_x),  ceil(inv_y)).Red() * (1.0 - floating_x)) * (1.0 - floating_y);
+        (overlay->Pixel(floor(inv_x), floor(inv_y)).Red() * floating_x +
+        overlay->Pixel(ceil(inv_x),  floor(inv_y)).Red() * (1.0 - floating_x)) * floating_y +
+        (overlay->Pixel(floor(inv_x), ceil(inv_y)).Red() * floating_x +
+        overlay->Pixel(ceil(inv_x),  ceil(inv_y)).Red() * (1.0 - floating_x)) * (1.0 - floating_y);
 
       double g =
-        (Pixel(floor(inv_x), floor(inv_y)).Green() * floating_x +
-        Pixel(ceil(inv_x),  floor(inv_y)).Green() * (1.0 - floating_x)) * floating_y +
-        (Pixel(floor(inv_x), ceil(inv_y)).Green() * floating_x +
-        Pixel(ceil(inv_x),  ceil(inv_y)).Green() * (1.0 - floating_x)) * (1.0 - floating_y);
+        (overlay->Pixel(floor(inv_x), floor(inv_y)).Green() * floating_x +
+        overlay->Pixel(ceil(inv_x),  floor(inv_y)).Green() * (1.0 - floating_x)) * floating_y +
+        (overlay->Pixel(floor(inv_x), ceil(inv_y)).Green() * floating_x +
+        overlay->Pixel(ceil(inv_x),  ceil(inv_y)).Green() * (1.0 - floating_x)) * (1.0 - floating_y);
 
       double b =
-        (Pixel(floor(inv_x), floor(inv_y)).Blue() * floating_x +
-        Pixel(ceil(inv_x),  floor(inv_y)).Blue() * (1.0 - floating_x)) * floating_y +
-        (Pixel(floor(inv_x), ceil(inv_y)).Blue() * floating_x +
-        Pixel(ceil(inv_x),  ceil(inv_y)).Blue() * (1.0 - floating_x)) * (1.0 - floating_y);
+        (overlay->Pixel(floor(inv_x), floor(inv_y)).Blue() * floating_x +
+        overlay->Pixel(ceil(inv_x),  floor(inv_y)).Blue() * (1.0 - floating_x)) * floating_y +
+        (overlay->Pixel(floor(inv_x), ceil(inv_y)).Blue() * floating_x +
+        overlay->Pixel(ceil(inv_x),  ceil(inv_y)).Blue() * (1.0 - floating_x)) * (1.0 - floating_y);
 
-      bool debug = true;
-
-      if(debug) {
-        r += 0.25;
-        g += 0.25;
-        b += 0.25;
+      if(r < 0.99 && g < 0.99 && b < 0.99) {
+        output->Pixel(i, j).SetRed(r);
+        output->Pixel(i, j).SetGreen(g);
+        output->Pixel(i, j).SetBlue(b);
       }
-
-      output->Pixel(i, j).SetRed(output->Pixel(i, j).Red() * 0.5 + r * 0.5);
-      output->Pixel(i, j).SetGreen(output->Pixel(i, j).Green() * 0.5 + g * 0.5);
-      output->Pixel(i, j).SetBlue(output->Pixel(i, j).Blue() * 0.5 + b * 0.5);
     }
   }
 
-  */
-
-  // output->Pixel(100, 100).Reset(0, 1, 0, 1);
-  // output->Pixel(100, 101).Reset(0, 1, 0, 1);
-  // output->Pixel(100, 102).Reset(0, 1, 0, 1);
-  // output->Pixel(101, 100).Reset(0, 1, 0, 1);
-  // output->Pixel(101, 101).Reset(0, 1, 0, 1);
-  // output->Pixel(101, 102).Reset(0, 1, 0, 1);
-  // output->Pixel(102, 100).Reset(0, 1, 0, 1);
-  // output->Pixel(102, 101).Reset(0, 1, 0, 1);
-  // output->Pixel(102, 102).Reset(0, 1, 0, 1);
   this->pixels = output->pixels;
-  return result;
-  // output->pixels = nullptr;
-  // delete output;
+  output->pixels = nullptr;
+  delete output;
+
+  return fullH;
 }
 
 double* R2Image::
@@ -699,6 +684,18 @@ matrixMultiplier(double* matrixOne,double *matrixTwo)
   result[6]=matrixOne[6]*matrixTwo[0]+matrixOne[7]*matrixTwo[3]+matrixOne[8]*matrixTwo[6];
   result[7]=matrixOne[6]*matrixTwo[1]+matrixOne[7]*matrixTwo[4]+matrixOne[8]*matrixTwo[7];
   result[8]=matrixOne[6]*matrixTwo[2]+matrixOne[7]*matrixTwo[5]+matrixOne[8]*matrixTwo[8];
+
+  std::cout << matrixOne[0] << ", " << matrixOne[1] << ", " << matrixOne[2] << ", " 
+  << matrixOne[3] << ", " << matrixOne[4] << ", " << matrixOne[5] << ", " << matrixOne[6] 
+  << ", " << matrixOne[7] << ", " << matrixOne[8] << ", " << std::endl;
+
+  std::cout << matrixTwo[0] << ", " << matrixTwo[1] << ", " << matrixTwo[2] << ", " 
+  << matrixTwo[3] << ", " << matrixTwo[4] << ", " << matrixTwo[5] << ", " << matrixTwo[6] 
+  << ", " << matrixTwo[7] << ", " << matrixTwo[8] << ", " << std::endl;
+
+  std::cout << result[0] << ", " << result[1] << ", " << result[2] << ", " 
+  << result[3] << ", " << result[4] << ", " << result[5] << ", " << result[6] 
+  << ", " << result[7] << ", " << result[8] << ", " << std::endl;
 
   return result;
 
@@ -1440,9 +1437,3 @@ WriteJPEG(const char *filename) const
   return 0;
 #endif
 }
-
-
-
-
-
-

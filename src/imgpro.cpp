@@ -106,18 +106,25 @@ main(int argc, char **argv)
       char outputName[100] = "videooutput/out%07d.jpg";
 
       R2Image *mainImage = new R2Image();
+      R2Image *overlay = new R2Image();
 
       char currentFilename[100];
       char previousFilename[100];
       char currentOutputFilename[100];
 
-      if (!mainImage) {
+      if (!mainImage || !overlay) {
         fprintf(stderr, "Unable to allocate image\n");
         exit(-1);
       }
+
       // read very first frame
-      sprintf(currentFilename, inputName, 1);
+      sprintf(currentFilename, inputName, 30);
       if (!mainImage->Read(currentFilename)) {
+        fprintf(stderr, "Unable to read first image\n");
+        exit(-1);
+      }
+
+      if (!overlay->Read(argv[2])) {
         fprintf(stderr, "Unable to read first image\n");
         exit(-1);
       }
@@ -130,8 +137,18 @@ main(int argc, char **argv)
       //Call Harris
       //std::vector<Feature> features=mainImage->FirstFrameProcessing();
       double* transformationMatrix=(double *) malloc(sizeof(double) * 9);
+      transformationMatrix[0] = 1;
+      transformationMatrix[1] = 0;
+      transformationMatrix[2] = 0;
+      transformationMatrix[3] = 0;
+      transformationMatrix[4] = 1;
+      transformationMatrix[5] = 0;
+      transformationMatrix[6] = 0;
+      transformationMatrix[7] = 0;
+      transformationMatrix[8] = 1;
+
       int end = 384;
-      for (int i = 2; i <= end; i++)
+      for (int i = 31; i <= end; i++)
       {
 
         R2Image *currentImage = new R2Image();
@@ -163,7 +180,7 @@ main(int argc, char **argv)
           exit(-1);
         }
 
-        transformationMatrix=currentImage->FrameProcessing(previousImage,transformationMatrix);
+        transformationMatrix=currentImage->FrameProcessing(previousImage,transformationMatrix, overlay);
 
         // where FrameProcessing would process the current input currentImage, as well as writing the output to currentImage
 
