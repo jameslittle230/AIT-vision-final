@@ -480,8 +480,8 @@ blendImages(R2Image * otherImage, double* oldTransformation, R2Image* overlay)
 	std::vector<Feature> features = otherImage->Harris(3); // passed by value
   std::vector<Feature>::iterator it;
 
-  int searchSpaceXDim = this->Width() / 10; // half the search space dimension
-  int searchSpaceYDim = this->Height() / 10;
+  int searchSpaceXDim = this->Width() / 20; // half the search space dimension
+  int searchSpaceYDim = this->Height() / 20;
   int windowDimension = 12; // half the window dimension
 
   for(it=features.begin(); it != features.end(); it++) {
@@ -613,6 +613,14 @@ blendImages(R2Image * otherImage, double* oldTransformation, R2Image* overlay)
   computeHomographyMatrix(bestCorr, interframeH);
 
   double *fullH = matrixMultiplier(interframeH, oldTransformation);
+  double fullHSum=0;
+  for(int i=0;i<9;i++){
+    fullHSum+=fullH[i];
+  }
+  for(int i=0;i<9;i++){
+    fullH[i]=fullH[i]/fullHSum;
+  }
+
   double *invFullH = (double *) malloc(sizeof(double) * 9);
   computeInverseMatrix(fullH, invFullH);
 
