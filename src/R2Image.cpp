@@ -364,10 +364,42 @@ Harris(double sigma)
       R2Pixel p = t4->Pixel(x, y);
       double v = p[0];
 
-      double sensitivity = 0.50;
+      double sensitivity = 0.5015;
 
       if(v > sensitivity) {
         features.push_back(Feature(x, y, p));
+      }
+    }
+  }
+
+  if(features.size() < 10000) {
+    features.clear();
+    for(int x=0; x<Width(); x++) {
+      for(int y=0; y<Height(); y++) {
+        R2Pixel p = t4->Pixel(x, y);
+        double v = p[0];
+
+        double sensitivity = 0.5005;
+
+        if(v > sensitivity) {
+          features.push_back(Feature(x, y, p));
+        }
+      }
+    }
+  }
+
+  if(features.size() < 10000) {
+    features.clear();
+    for(int x=0; x<Width(); x++) {
+      for(int y=0; y<Height(); y++) {
+        R2Pixel p = t4->Pixel(x, y);
+        double v = p[0];
+
+        double sensitivity = 0.5;
+
+        if(v > sensitivity) {
+          features.push_back(Feature(x, y, p));
+        }
       }
     }
   }
