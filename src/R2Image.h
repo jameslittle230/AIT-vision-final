@@ -2,6 +2,8 @@
 #ifndef R2_IMAGE_INCLUDED
 #define R2_IMAGE_INCLUDED
 
+#include <cmath>
+#include <iostream>
 #include <vector>
 
 // Constant definitions

@@ -147,8 +147,9 @@ main(int argc, char **argv)
       transformationMatrix[7] = 0;
       transformationMatrix[8] = 1;
 
-      int end = 384;
-      for (int i = 31; i <= end; i++)
+      int start = 2;
+      int end = 255;
+      for (int i = start; i <= end; i++)
       {
 
         R2Image *currentImage = new R2Image();
