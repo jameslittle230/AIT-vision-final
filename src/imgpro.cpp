@@ -191,6 +191,7 @@ main(int argc, char **argv)
           exit(-1);
         }
         delete currentImage;
+        delete previousImage;
       }
       delete mainImage;
       // Return success

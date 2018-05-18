@@ -136,13 +136,13 @@ void R2Image::SobelX(void) {
                         (sobel_x[2][1] * Pixel(i, j + 1).Luminance()) +
                         (sobel_x[2][2] * Pixel(i + 1, j + 1).Luminance());
 
-      R2Pixel *newPixel = new R2Pixel(sobelVal, sobelVal, sobelVal, 1);
-      output->SetPixel(i, j, *newPixel);
+      output->Pixel(i, j).Reset(sobelVal, sobelVal, sobelVal, 1);
     }
   }
 
-  this->pixels = output->pixels;
-  output->pixels = nullptr;
+  // this->pixels = output->pixels;
+  (*this) = (*output);
+  // output->pixels = nullptr;
   delete output;
 }
 
@@ -163,13 +163,11 @@ void R2Image::SobelY(void) {
                         (sobel_y[2][1] * Pixel(i, j + 1).Luminance()) +
                         (sobel_y[2][2] * Pixel(i + 1, j + 1).Luminance());
 
-      R2Pixel *newPixel = new R2Pixel(sobelVal, sobelVal, sobelVal, 1);
-      output->SetPixel(i, j, *newPixel);
+      output->Pixel(i, j).Reset(sobelVal, sobelVal, sobelVal, 1);
     }
   }
 
-  this->pixels = output->pixels;
-  output->pixels = nullptr;
+  (*this) = (*output);
   delete output;
 }
 
@@ -211,7 +209,7 @@ void R2Image::Blur(double sigma) {
     }
   }
 
-  this->pixels = temp->pixels;
+  (*this) = (*temp);
   temp->pixels = (R2Pixel *)malloc(npixels * sizeof(R2Pixel));
 
   for (y = k_rad; y < height - k_rad; y++) {
@@ -228,8 +226,8 @@ void R2Image::Blur(double sigma) {
     }
   }
 
-  this->pixels = temp->pixels;
-  temp->pixels = nullptr;
+  (*this) = (*temp);
+  // temp->pixels = nullptr;
   free(k);
   delete temp;
 }
@@ -500,8 +498,8 @@ double *R2Image::blendImages(R2Image *otherImage, double *oldTransformation,
   std::vector<Feature> features = otherImage->Harris(3); // passed by value
   std::vector<Feature>::iterator it;
 
-  int searchSpaceXDim = this->Width() / 20; // half the search space dimension
-  int searchSpaceYDim = this->Height() / 20;
+  int searchSpaceXDim = this->Width() / 40; // half the search space dimension
+  int searchSpaceYDim = this->Height() / 40;
   int windowDimension = 12; // half the window dimension
 
   for (it = features.begin(); it != features.end(); it++) {
@@ -712,8 +710,7 @@ double *R2Image::blendImages(R2Image *otherImage, double *oldTransformation,
 
   free(invFullH);
 
-  this->pixels = output->pixels;
-  output->pixels = nullptr;
+  (*this) = (*output);
   delete output;
 
   return fullH;
